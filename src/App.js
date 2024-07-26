@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
   SubnodeOutlined,
-  NodeIndexOutlined
+  NodeIndexOutlined,
 } from '@ant-design/icons';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 import { Col, Row } from 'antd';
 import { Button } from 'antd';
 import { Tabs } from 'antd';
+import { Input, Flex } from 'antd';
 import axios from 'axios';
+import Editor from '@monaco-editor/react';
 const { Header, Content, Footer, Sider } = Layout;
 
 function addIcons(children) {
@@ -67,40 +69,36 @@ function formatDocs(desc, params, docs, ret) {
 
 }
 
-function formatArgs(kwargs) {
-
-  console.log(kwargs)
+function formatArgs(key, payload) {
 
   return (
     <div>
 
-      {/* <b>Description</b>
-      <pre style={{
-        marginLeft: '30px'
+      <Flex gap='middle' style={{
+        marginBottom: 10
       }}>
-        {desc.join("\r\n")}
-      </pre>
+        <Input style={{
+          color: 'black',
+          backgroundColor: 'white'
+        }} value={key} size='large' disabled />
+        {/* onClick={runValidate} */}
+        <Button type="primary" size='large' >Validate</Button>
+        {/* onClick={runExecute} */}
+        <Button type="primary" size='large' >Execute</Button>
+      </Flex>
 
-      <b>Arguments</b>
-      <pre style={{
-        marginLeft: '30px'
-      }}>
-        {params.join("\r\n")}
-      </pre>
+      <Row gutter={[16, 16]}>
+        <Col span={12} >
+          <b>&nbsp;Input Parameters</b>
+          <Editor height="60vh" language="json" theme="vs-dark"
+            value={JSON.stringify(payload, null, 2)} />
+        </Col>
 
-      <b>Usage</b>
-      <pre style={{
-        marginLeft: '30px'
-      }}>
-        {docs.join("\r\n")}
-      </pre>
-
-      <b>Returns</b>
-      <pre style={{
-        marginLeft: '30px'
-      }}>
-        {act_ret}
-      </pre> */}
+        <Col span={12} >
+          <b>&nbsp;Returned Output</b>
+          <Editor height="60vh" language="json" theme="vs-dark" defaultValue="{}" />
+        </Col>
+      </Row>
 
     </div>
   );
@@ -118,6 +116,7 @@ const App = () => {
   const [tabs, setTabsContent] = useState([])
 
   useEffect(() => {
+
     axios.post('http://localhost:8000/docs/layer1', [], {
       headers: {
         'Content-Type': 'application/json'
@@ -133,7 +132,56 @@ const App = () => {
       .catch(error => {
         console.error(error);
       });
+
   }, []);
+
+  const refreshSchema = () => {
+
+    axios.post('http://localhost:8000/docs/layer1', [], {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => {
+        const tabs = []
+        setLastUpdated(response.data.time)
+        addIcons([response.data.layer1])
+        // console.log(JSON.stringify([response.data.layer1], null, 2))
+        setSchema([response.data.layer1]);
+        setBreadCrumbs([{ title: response.data.layer1.key }])
+        tabs.push({ key: 'Docs', label: 'Docs', children: "" })
+        tabs.push({ key: 'Args', label: 'Args', children: "" })
+        setTabsContent(tabs)
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
+  };
+
+  // const runValidate = () => {
+
+  //   axios.post('http://localhost:8000/conf/layer1', [], {
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     }
+  //   })
+  //     .then(response => {
+  //       const tabs = []
+  //       const details = response.data[e.key]
+
+  //       const payload = {}
+  //       payload[details.label] = details.kwargs
+
+  //       tabs.push({ key: 'Docs', label: 'Docs', children: formatDocs(details.desc, details.params, details.docs, details.ret) })
+  //       tabs.push({ key: 'Args', label: 'Args', children: formatArgs(details.key, [payload]) })
+  //       setTabsContent(tabs)
+  //     })
+  //     .catch(error => {
+  //       console.error(error);
+  //     });
+
+  // };
 
   const onSelectKey = (e) => {
     const breadcrumb = []
@@ -152,8 +200,12 @@ const App = () => {
       .then(response => {
         const tabs = []
         const details = response.data[e.key]
+
+        const payload = {}
+        payload[details.label] = details.kwargs
+
         tabs.push({ key: 'Docs', label: 'Docs', children: formatDocs(details.desc, details.params, details.docs, details.ret) })
-        tabs.push({ key: 'Args', label: 'Args', children: formatArgs(details.kwargs) })
+        tabs.push({ key: 'Args', label: 'Args', children: formatArgs(details.key, [payload]) })
         setTabsContent(tabs)
       })
       .catch(error => {
@@ -184,7 +236,7 @@ const App = () => {
               <b>last updated time : {lastupdated}</b>
             </Col>
             <Col span={12} style={{ textAlign: 'right' }}>
-              <Button type="primary">Reload Schema</Button>
+              <Button type="primary" onClick={refreshSchema}>Reload Schema</Button>
             </Col>
           </Row>
         </Header>
