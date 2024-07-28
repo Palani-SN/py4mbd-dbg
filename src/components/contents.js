@@ -24,7 +24,7 @@ const Contents = ({ urlpath }) => {
                 breadcrumb.push({ title: splitted[i] })
             }
             setBreadCrumbs(breadcrumb)
-            axios.post('http://localhost:8000/docs/' + urlpath, ['desc', 'params', 'docs', 'template', 'ret'], {
+            axios.post('http://localhost:8000/docs/' + urlpath, ['desc', 'params', 'docs', 'model', 'ret'], {
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -40,15 +40,15 @@ const Contents = ({ urlpath }) => {
                         ret: inspected['ret']
                     }
 
-                    var api_inps = response.data[urlpath].template
-                    const template = JSON.stringify([api_inps], null, 2)
+                    var api_inps = response.data[urlpath].model
+                    const model = JSON.stringify([api_inps], null, 2)
 
                     tabs.push(
                         {
                             key: 'Args',
                             label: 'Args',
                             children:
-                                <Args urlpath={urlpath} template={template} />
+                                <Args urlpath={urlpath} template={model} />
                         })
                     tabs.push({ key: 'Docs', label: 'Docs', children: <Docs {...doc} /> })
                     setTabsContent(tabs)
