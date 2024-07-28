@@ -35,7 +35,7 @@ const App = () => {
     const [schema, setSchema] = useState([]);
     const [lastupdated, setLastUpdated] = useState("")
     const [urlpath, setURLPath] = useState("")
-    // const [payload, setPayload] = useState("")
+    const [refresh, setRefresh] = useState(false)
 
     useEffect(() => {
 
@@ -52,27 +52,12 @@ const App = () => {
             .catch(error => {
                 console.error(error);
             });
-
     }, []);
 
     const reloadSchema = () => {
-        if (urlpath && urlpath !== 'refresh') {
-            console.log(urlpath)
+        if (urlpath) {
+            setRefresh(!refresh)
         }
-        // if (urlpath !== 'refresh') {
-        //     axios.post('http://localhost:8000/docs/' + urlpath, ['desc', 'params', 'docs', 'template', 'ret'], {
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         }
-        //     })
-        //         .then(response => {
-        //             var api_inps = response.data[urlpath].template
-        //             setPayload(JSON.stringify([api_inps], null, 2))
-        //         })
-        //         .catch(error => {
-        //             console.error(error);
-        //         });
-        // }
     };
 
     const onSelectKey = (e) => {
@@ -91,21 +76,9 @@ const App = () => {
                     console.error(error);
                 });
         }
-        setURLPath(e.key)
-        // if (e.key !== 'refresh') {
-        //     axios.post('http://localhost:8000/docs/' + e.key, ['desc', 'params', 'docs', 'template', 'ret'], {
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         }
-        //     })
-        //         .then(response => {
-        //             var api_inps = response.data[e.key].template
-        //             setPayload(JSON.stringify([api_inps], null, 2))
-        //         })
-        //         .catch(error => {
-        //             console.error(error);
-        //         });
-        // }
+        else {
+            setURLPath(e.key)
+        }
     };
 
     return (
@@ -136,6 +109,7 @@ const App = () => {
                 </Header>
                 <Contents
                     urlpath={urlpath}
+                    refresh={refresh}
                 />
                 <Footer
                     style={{

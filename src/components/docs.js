@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Docs = ({ name, desc, params, docs, ret }) => {
+const Docs = ({ name, desc, params, docs, ret, refresh }) => {
 
     if (name && desc && params && docs && ret) {
 

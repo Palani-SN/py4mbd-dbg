@@ -7,7 +7,7 @@ import { Tabs } from 'antd';
 import axios from 'axios';
 const { Content } = Layout;
 
-const Contents = ({ urlpath }) => {
+const Contents = ({ urlpath, refresh }) => {
 
     const {
         token: { colorBgContainer, borderRadiusLG },
@@ -17,7 +17,7 @@ const Contents = ({ urlpath }) => {
 
     useEffect(() => {
 
-        if (urlpath && urlpath !== 'refresh') {
+        if (urlpath) {
             const breadcrumb = []
             const splitted = urlpath.split('/')
             for (var i = 0, l = splitted.length; i < l; i++) {
@@ -48,9 +48,9 @@ const Contents = ({ urlpath }) => {
                             key: 'Args',
                             label: 'Args',
                             children:
-                                <Args urlpath={urlpath} template={model} />
+                                <Args urlpath={urlpath} template={model} refresh={refresh}/>
                         })
-                    tabs.push({ key: 'Docs', label: 'Docs', children: <Docs {...doc} /> })
+                    tabs.push({ key: 'Docs', label: 'Docs', children: <Docs {...doc} refresh={refresh}/> })
                     setTabsContent(tabs)
                 })
                 .catch(error => {
@@ -58,7 +58,7 @@ const Contents = ({ urlpath }) => {
                 });
         }
 
-    }, [urlpath]);
+    }, [urlpath, refresh]);
 
     return (
         <div>
